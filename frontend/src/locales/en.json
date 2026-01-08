@@ -266,6 +266,7 @@
     },
     "edit_modal": {
       "title": "Edit Profile",
+      "admin_section": "Administrative Permissions",
       "first_name": "First Name",
       "last_name": "Last Name",
       "email": "Email Address",

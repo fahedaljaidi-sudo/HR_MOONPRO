@@ -711,9 +711,9 @@ const EmployeeProfilePage = () => {
                                         <div className="col-span-2 mb-2 flex justify-between items-center">
                                             <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                                                 <Shield className="w-4 h-4 text-primary-600" />
-                                                {t('profile.edit_modal.admin_section') || 'Administrative Details'}
+                                                {t('profile.edit_modal.admin_section', 'Administrative Details')}
                                             </h3>
-                                            {!['Manager', 'Admin', 'Owner'].includes(currentUserRole) && (
+                                            {!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase()) && (
                                                 <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100 flex items-center gap-1">
                                                     <Lock className="w-3 h-3" /> Admin Only
                                                 </span>
@@ -726,7 +726,7 @@ const EmployeeProfilePage = () => {
                                                 className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                                 value={editForm.jobPositionId}
                                                 onChange={e => setEditForm({ ...editForm, jobPositionId: e.target.value })}
-                                                disabled={!['Manager', 'Admin', 'Owner'].includes(currentUserRole)}
+                                                disabled={!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase())}
                                             >
                                                 <option value="">Select Position</option>
                                                 {allJobPositions.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
@@ -739,7 +739,7 @@ const EmployeeProfilePage = () => {
                                                 className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                                 value={editForm.managerId}
                                                 onChange={e => setEditForm({ ...editForm, managerId: e.target.value })}
-                                                disabled={!['Manager', 'Admin', 'Owner'].includes(currentUserRole)}
+                                                disabled={!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase())}
                                             >
                                                 <option value="">No Manager (Top Level)</option>
                                                 {potentialManagers.map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
