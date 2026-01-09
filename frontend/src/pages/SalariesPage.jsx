@@ -34,7 +34,7 @@ const SalariesPage = () => {
     const handleNativePrint = () => {
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
-            alert('Please allow popups to print');
+            alert(t('salaries.alerts.popup_blocked'));
             return;
         }
 
@@ -137,7 +137,7 @@ const SalariesPage = () => {
         } catch (error) {
             console.error("Failed to fetch salaries", error);
             const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message;
-            alert(`API Error: ${errorMsg}`);
+            alert(`${t('dashboard.error')}: ${errorMsg}`);
         }
     };
 
@@ -169,7 +169,7 @@ const SalariesPage = () => {
             setPreviewData({ ...res.data, preview: formatted });
             setPayrollStep('review');
         } catch (error) {
-            const errorMsg = error.response?.data?.message || 'Failed to preview';
+            const errorMsg = error.response?.data?.message || t('salaries.alerts.preview_failed');
             alert(errorMsg);
         } finally {
             setProcessing(false);
@@ -209,12 +209,12 @@ const SalariesPage = () => {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            alert(`Payroll Confirmed! Paid ${res.data.stats.employees} employees.`);
+            alert(t('salaries.alerts.confirmed_success', { count: res.data.stats.employees }));
             setShowPayrollModal(false);
             setPayrollStep('initial');
             fetchHistory();
         } catch (error) {
-            alert('Failed to confirm payroll');
+            alert(t('salaries.alerts.confirm_failed'));
         } finally {
             setProcessing(false);
         }
@@ -266,7 +266,7 @@ const SalariesPage = () => {
             setShowModal(false);
             fetchSalaries();
         } catch (error) {
-            alert('Failed to update salary');
+            alert(t('salaries.alerts.update_failed'));
         }
     };
 

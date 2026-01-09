@@ -7,6 +7,7 @@ import { Input } from '../components/ui/Input';
 import { Plus, Search, User, Briefcase, Mail, Phone, Calendar, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import OrgChartModal from '../components/employees/OrgChartModal';
+import { nationalities } from '../constants/nationalities';
 
 const EmployeesPage = () => {
     const { t } = useTranslation();
@@ -24,10 +25,27 @@ const EmployeesPage = () => {
         phone: '',
         jobPositionId: '',
         hireDate: '',
-        manager_id: ''
+        manager_id: '',
+        nationality: ''
     });
 
+    // Permission Logic
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
     const token = localStorage.getItem('token');
+
+    useEffect(() => {
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                setCurrentUserId(payload.id);
+                const role = (payload.role || '').toLowerCase();
+                setIsAdmin(['admin', 'manager', 'owner'].includes(role));
+            } catch (e) { }
+        }
+    }, [token]);
+
     const api = axios.create({
         baseURL: 'http://localhost:5000/api',
         headers: { Authorization: `Bearer ${token}` }
@@ -56,7 +74,7 @@ const EmployeesPage = () => {
         try {
             await api.post('/employees', formData);
             setFormData({
-                firstName: '', lastName: '', email: '', phone: '', jobPositionId: '', hireDate: '', manager_id: ''
+                firstName: '', lastName: '', email: '', phone: '', jobPositionId: '', hireDate: '', manager_id: '', nationality: ''
             });
             setShowForm(false);
             fetchData();
@@ -89,11 +107,13 @@ const EmployeesPage = () => {
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" onClick={() => setIsChartOpen(true)}>
-                        <BarChart3 className="w-4 h-4 rtl:ml-2 ltr:mr-2" /> الرسم البياني
+                        <BarChart3 className="w-4 h-4 rtl:ml-2 ltr:mr-2" /> {t('employees.chart_view')}
                     </Button>
-                    <Button onClick={() => setShowForm(!showForm)}>
-                        <Plus className="w-4 h-4 rtl:ml-2 ltr:mr-2" /> {t('employees.add_employee')}
-                    </Button>
+                    {isAdmin && (
+                        <Button onClick={() => setShowForm(!showForm)}>
+                            <Plus className="w-4 h-4 rtl:ml-2 ltr:mr-2" /> {t('employees.add_employee')}
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -124,12 +144,27 @@ const EmployeesPage = () => {
 
                         <div className="space-y-1">
                             <select
+                                name="nationality"
+                                className="w-full h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary-400 focus:outline-none"
+                                value={formData.nationality}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">{t('employees.select_nationality')}</option>
+                                {nationalities.map(n => (
+                                    <option key={n} value={n}>{t(`countries.${n}`)}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="space-y-1">
+                            <select
                                 name="manager_id"
                                 className="w-full h-10 rounded-md border border-secondary-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary-400 focus:outline-none"
                                 value={formData.manager_id}
                                 onChange={handleChange}
                             >
-                                <option value="">المدير المباشر (اختياري)</option>
+                                <option value="">{t('employees.select_manager_optional')}</option>
                                 {employees.map(e => (
                                     <option key={e.id} value={e.id}>{e.first_name} {e.last_name}</option>
                                 ))}
@@ -171,8 +206,17 @@ const EmployeesPage = () => {
                             {employees.map(emp => (
                                 <tr
                                     key={emp.id}
-                                    className="hover:bg-secondary-50/50 transition-colors cursor-pointer"
-                                    onClick={() => window.location.href = `/employees/${emp.id}`}
+                                    className={`transition-colors ${isAdmin || currentUserId === emp.id
+                                        ? 'hover:bg-secondary-50/50 cursor-pointer'
+                                        : 'opacity-75 cursor-not-allowed'
+                                        }`}
+                                    onClick={() => {
+                                        if (isAdmin || currentUserId === emp.id) {
+                                            window.location.href = `/employees/${emp.id}`;
+                                        } else {
+                                            alert(t('common.access_denied') || "Access Denied");
+                                        }
+                                    }}
                                 >
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">

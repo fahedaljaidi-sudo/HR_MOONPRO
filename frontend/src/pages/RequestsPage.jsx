@@ -299,13 +299,16 @@ const RequestsPage = () => {
                                                 <h3 className="font-semibold text-secondary-900 flex items-center gap-2">
                                                     {t(`requests.types.${req.type}`)}
                                                 </h3>
-                                                <p className="text-sm text-secondary-500">{new Date(req.request_date).toLocaleDateString()} {req.end_date && `- ${new Date(req.end_date).toLocaleDateString()}`}</p>
+                                                <p className="text-sm text-secondary-500">
+                                                    {req.request_date && !isNaN(new Date(req.request_date)) ? new Date(req.request_date).toLocaleDateString() : 'N/A'}
+                                                    {req.end_date && !isNaN(new Date(req.end_date)) && ` - ${new Date(req.end_date).toLocaleDateString()}`}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {req.amount && <span className="text-sm font-medium">{req.amount} SAR</span>}
                                             <Badge className={getStatusColor(req.status)} variant="secondary">
-                                                {req.status}
+                                                {t(`requests.status.${req.status}`)}
                                             </Badge>
                                             {req.status === 'PENDING' && (
                                                 <div className="flex gap-1">
@@ -359,7 +362,7 @@ const RequestsPage = () => {
                                                         {req.amount && ` (${req.amount} SAR)`}
                                                     </span>
                                                     <p className="text-gray-600">{req.reason}</p>
-                                                    <p className="text-xs text-gray-400 mt-1">{t('requests.requested_for')}: {new Date(req.request_date).toLocaleDateString()}</p>
+                                                    <p className="text-xs text-gray-400 mt-1">{t('requests.requested_for')}: {req.request_date && !isNaN(new Date(req.request_date)) ? new Date(req.request_date).toLocaleDateString() : 'N/A'}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -523,7 +526,7 @@ const RequestsPage = () => {
                                         </div>
                                         <div>
                                             <CardTitle className="text-lg">{t(`requests.types.${viewingRequest.type}`)}</CardTitle>
-                                            <Badge className={`mt-1 ${getStatusColor(viewingRequest.status)}`}>{viewingRequest.status}</Badge>
+                                            <Badge className={`mt-1 ${getStatusColor(viewingRequest.status)}`}>{t(`requests.status.${viewingRequest.status}`)}</Badge>
                                         </div>
                                     </div>
                                     <button onClick={() => setViewingRequest(null)} className="text-gray-500 hover:text-gray-700">

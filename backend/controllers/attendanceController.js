@@ -8,9 +8,9 @@ exports.getTodayStatus = async (req, res) => {
         const today = new Date().toISOString().split('T')[0];
 
         // Ensure table exists (fail-safe query, though migration should handle it)
-        // We use the correct column names: attendance_date, check_in_time, check_out_time
+        // We use DATE_FORMAT to prevent timezone shifts when Node converts DATE columns
         const [rows] = await db.execute(
-            'SELECT id, attendance_date as date, check_in_time as check_in, check_out_time as check_out, status FROM attendance WHERE employee_id = ? AND attendance_date = ?',
+            "SELECT id, DATE_FORMAT(attendance_date, '%Y-%m-%d') as date, check_in_time as check_in, check_out_time as check_out, status FROM attendance WHERE employee_id = ? AND attendance_date = ?",
             [employeeId, today]
         );
 
@@ -87,7 +87,7 @@ exports.getHistory = async (req, res) => {
         const employeeId = req.user.id;
 
         const [rows] = await db.execute(
-            'SELECT id, attendance_date as date, check_in_time as check_in, check_out_time as check_out, status FROM attendance WHERE employee_id = ? ORDER BY attendance_date DESC LIMIT 30',
+            "SELECT id, DATE_FORMAT(attendance_date, '%Y-%m-%d') as date, check_in_time as check_in, check_out_time as check_out, status FROM attendance WHERE employee_id = ? ORDER BY attendance_date DESC LIMIT 30",
             [employeeId]
         );
         res.json(rows);

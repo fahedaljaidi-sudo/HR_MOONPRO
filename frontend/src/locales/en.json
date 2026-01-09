@@ -12,7 +12,9 @@
     "permissions": "Roles & Permissions",
     "settings": "Settings",
     "logout": "Sign Out",
-    "free_plan": "Free Plan"
+    "free_plan": "Free Plan",
+    "app_name": "HR MOON PRO",
+    "company_name": "Tech Masters"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -35,7 +37,11 @@
     "input_type": "Type",
     "input_date": "Event Date",
     "news_type": "News",
-    "event_type": "Event"
+    "event_type": "Event",
+    "nationality_distribution": "Nationality Distribution",
+    "perf_excellent": "Excellent! 🌟",
+    "perf_good": "Good 👍",
+    "perf_improvement": "Needs Work 📉"
   },
   "employees": {
     "title": "Employees",
@@ -62,7 +68,10 @@
     "active": "Active",
     "inactive": "Inactive",
     "success_add": "Employee added successfully!",
-    "failed_add": "Failed to add employee"
+    "failed_add": "Failed to add employee",
+    "chart_view": "Chart View",
+    "select_nationality": "Select Nationality",
+    "select_manager_optional": "Direct Manager (Optional)"
   },
   "organization": {
     "title": "Organization Structure",
@@ -94,7 +103,9 @@
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "select": "Select...",
+    "access_denied": "Access Denied"
   },
   "attendance": {
     "title": "Attendance",
@@ -166,6 +177,13 @@
       "hr": "HR Manager",
       "finance": "Finance Manager",
       "general": "General Manager"
+    },
+    "alerts": {
+      "popup_blocked": "Please allow popups to print",
+      "preview_failed": "Failed to preview payroll",
+      "confirmed_success": "Payroll Confirmed! Paid {{count}} employees.",
+      "confirm_failed": "Failed to confirm payroll",
+      "update_failed": "Failed to update salary"
     }
   },
   "roles": {
@@ -273,7 +291,72 @@
       "phone": "Phone Number",
       "cancel": "Cancel",
       "save": "Save Changes",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "admin_only": "Admin Only",
+      "cant_change_nationality": "Nationality can only be changed by an admin"
+    },
+    "messages": {
+      "title": "Messages",
+      "new_message": "New Message",
+      "inbox": "Inbox",
+      "sent": "Sent",
+      "archive": "Archive",
+      "no_subject": "No Subject",
+      "type_reply": "Type a reply...",
+      "search": "Search messages",
+      "confirm_delete": "Are you sure you want to delete this conversation?",
+      "send": "Send",
+      "to": "To",
+      "subject": "Subject",
+      "reply": "Reply",
+      "reply_all": "Reply All",
+      "forward": "Forward",
+      "message": "Message",
+      "start_chat": "Start Chat",
+      "select_conv": "Select a conversation",
+      "loading": "Loading...",
+      "no_active": "No active messages",
+      "no_archived": "No archived messages",
+      "archived_badge": "Archived",
+      "deleted_msg": "This message was deleted",
+      "download": "Download",
+      "your_messages": "Your Messages",
+      "viewing_archived": "Viewing Archive",
+      "search_people": "Search employees...",
+      "no_employees": "No employees found"
+    },
+    "countries": {
+      "Saudi Arabia": "Saudi Arabia",
+      "Egypt": "Egypt",
+      "Jordan": "Jordan",
+      "Syria": "Syria",
+      "Lebanon": "Lebanon",
+      "Palestine": "Palestine",
+      "Kuwait": "Kuwait",
+      "UAE": "UAE",
+      "Qatar": "Qatar",
+      "Bahrain": "Bahrain",
+      "Oman": "Oman",
+      "Yemen": "Yemen",
+      "Iraq": "Iraq",
+      "Sudan": "Sudan",
+      "Morocco": "Morocco",
+      "Tunisia": "Tunisia",
+      "Algeria": "Algeria",
+      "Libya": "Libya",
+      "Pakistan": "Pakistan",
+      "India": "India",
+      "Philippines": "Philippines",
+      "Bangladesh": "Bangladesh",
+      "Nepal": "Nepal",
+      "Sri Lanka": "Sri Lanka",
+      "Indonesia": "Indonesia",
+      "USA": "USA",
+      "UK": "UK",
+      "Canada": "Canada",
+      "France": "France",
+      "Germany": "Germany",
+      "Other": "Other"
     },
     "documents": {
       "title": "Employee Documents",
@@ -315,6 +398,13 @@
       "email_desc": "Receive daily summary and critical alerts via email.",
       "browser_alerts": "Browser Alerts",
       "browser_desc": "Show popup notifications when updates occur."
+    },
+    "attendance": {
+      "title": "Attendance Settings",
+      "work_start": "Work Start Time",
+      "work_end": "Work End Time",
+      "late_threshold": "Grace Period (Minutes)",
+      "update_success": "Attendance settings updated successfully"
     },
     "security": {
       "title": "Login & Security",
@@ -365,6 +455,12 @@
       "RESIGNATION": "Resignation",
       "NON_RENEWAL": "Non-Renewal",
       "OTHER": "Other"
+    },
+    "status": {
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "PENDING": "Pending",
+      "CANCELLED": "Cancelled"
     },
     "form": {
       "type": "Request Type",

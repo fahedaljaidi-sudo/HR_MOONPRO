@@ -6,7 +6,9 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Users, UserMinus, UserPlus, CalendarCheck, Activity, Megaphone, Calendar as CalendarIcon, Plus, X } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, RadialBarChart, RadialBar, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+
+const COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#8b5cf6'];
 
 const DashboardPage = () => {
     const { t } = useTranslation();
@@ -18,7 +20,20 @@ const DashboardPage = () => {
     const [isNewsModalOpen, setIsNewsModalOpen] = useState(false);
     const [newNews, setNewNews] = useState({ title: '', content: '', type: 'news', event_date: '' });
 
+    const [isAdmin, setIsAdmin] = useState(false);
+
     const token = localStorage.getItem('token');
+
+    useEffect(() => {
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const role = (payload.role || '').toLowerCase();
+                setIsAdmin(['admin', 'manager', 'owner'].includes(role));
+            } catch (e) { }
+        }
+    }, [token]);
+
     const api = axios.create({
         baseURL: 'http://localhost:5000/api',
         headers: { Authorization: `Bearer ${token}` }
@@ -66,9 +81,11 @@ const DashboardPage = () => {
                     <h1 className="text-2xl font-bold text-secondary-900">{t('dashboard.title')}</h1>
                     <p className="text-secondary-500">{t('dashboard.welcome')}</p>
                 </div>
-                <Button onClick={() => setIsNewsModalOpen(true)} size="sm" className="bg-primary-600">
-                    <Megaphone className="w-4 h-4 rtl:ml-2 ltr:mr-2" /> {t('dashboard.post_news')}
-                </Button>
+                {isAdmin && (
+                    <Button onClick={() => setIsNewsModalOpen(true)} size="sm" className="bg-primary-600">
+                        <Megaphone className="w-4 h-4 rtl:ml-2 ltr:mr-2" /> {t('dashboard.post_news')}
+                    </Button>
+                )}
             </div>
 
             {/* Stats Grid */}
@@ -79,18 +96,101 @@ const DashboardPage = () => {
                 <StatCard title={t('dashboard.attendance_rate')} value={`${stats.stats.attendanceRate}%`} icon={CalendarCheck} color="bg-purple-50 text-purple-600" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Department Distribution Chart */}
-                <Card className="lg:col-span-2 min-h-[400px] overflow-hidden flex flex-col">
+                <Card className="min-h-[350px] overflow-hidden flex flex-col">
                     <h3 className="text-lg font-semibold text-secondary-900 mb-6">{t('dashboard.distribution')}</h3>
-                    <div className="w-full h-[300px]">
+                    <div className="w-full h-[250px]">
                         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                            <BarChart data={stats.charts.departmentDistribution}>
+                            <PieChart>
+                                <Pie
+                                    data={stats.charts.departmentDistribution}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={100}
+                                    paddingAngle={5}
+                                    dataKey="count"
+                                >
+                                    {stats.charts.departmentDistribution.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                    itemStyle={{ color: '#1f2937', fontWeight: 600 }}
+                                />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    height={36}
+                                    iconType="circle"
+                                    formatter={(value) => <span className="text-sm font-medium text-secondary-600">{value}</span>}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </Card>
+
+
+
+                {/* Attendance Radial Chart */}
+                <Card className="min-h-[350px] flex flex-col relative overflow-hidden">
+                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">{t('dashboard.attendance_rate')}</h3>
+                    <div className="flex-1 w-full min-h-[250px] flex items-center justify-center relative">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <RadialBarChart
+                                cx="50%"
+                                cy="50%"
+                                innerRadius="70%"
+                                outerRadius="100%"
+                                barSize={24}
+                                data={[{ name: 'Attendance', value: stats.stats.attendanceRate || 0, fill: stats.stats.attendanceRate >= 75 ? '#10b981' : stats.stats.attendanceRate >= 50 ? '#f59e0b' : '#ef4444' }]}
+                                startAngle={180}
+                                endAngle={0}
+                            >
+                                <RadialBar
+                                    background
+                                    dataKey="value"
+                                    cornerRadius={12}
+                                />
+                            </RadialBarChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pt-8 pointer-events-none">
+                            <span className="text-4xl font-bold text-secondary-900">{stats.stats.attendanceRate}%</span>
+                            <span className="text-sm text-secondary-500 font-medium mt-1">{t('attendance.status')}</span>
+                            <p className="text-xs text-secondary-400 mt-2 px-6 text-center">
+                                {stats.stats.attendanceRate >= 90 ? t('dashboard.perf_excellent') : stats.stats.attendanceRate >= 75 ? t('dashboard.perf_good') : t('dashboard.perf_improvement')}
+                            </p>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Nationality Distribution Chart */}
+                <Card className="min-h-[350px] flex flex-col overflow-hidden">
+                    <h3 className="text-lg font-semibold text-secondary-900 mb-6">{t('dashboard.nationality_distribution')}</h3>
+                    <div className="w-full h-[250px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={stats.charts.nationalityDistribution}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                                <YAxis axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} cursor={{ fill: '#f3f4f6' }} />
-                                <Bar dataKey="count" fill="#4F46E5" radius={[4, 4, 0, 0]} barSize={40} />
+                                <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 12 }}
+                                    tickFormatter={(value) => t(`countries.${value}`) || value}
+                                />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} allowDecimals={false} />
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                    cursor={{ fill: '#f3f4f6' }}
+                                    formatter={(value, name, props) => [value, t(`countries.${props.payload.name}`) || props.payload.name]}
+                                    labelFormatter={(label) => t(`countries.${label}`) || label}
+                                />
+                                <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={30}>
+                                    {stats.charts.nationalityDistribution?.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -136,68 +236,70 @@ const DashboardPage = () => {
             </div>
 
             {/* Post News Modal */}
-            {isNewsModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-                        <div className="flex justify-between items-center p-4 border-b border-secondary-100 bg-secondary-50">
-                            <h3 className="font-semibold text-lg">{t('dashboard.modal_title')}</h3>
-                            <button onClick={() => setIsNewsModalOpen(false)} className="text-secondary-400 hover:text-red-500">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <form onSubmit={handlePostNews} className="p-4 space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_title')}</label>
-                                <Input
-                                    value={newNews.title}
-                                    onChange={e => setNewNews({ ...newNews, title: e.target.value })}
-                                    placeholder={t('dashboard.input_title')}
-                                    required
-                                />
+            {
+                isNewsModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                            <div className="flex justify-between items-center p-4 border-b border-secondary-100 bg-secondary-50">
+                                <h3 className="font-semibold text-lg">{t('dashboard.modal_title')}</h3>
+                                <button onClick={() => setIsNewsModalOpen(false)} className="text-secondary-400 hover:text-red-500">
+                                    <X className="w-5 h-5" />
+                                </button>
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_content')}</label>
-                                <textarea
-                                    className="w-full mt-1 rounded-md border border-secondary-200 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                                    rows="3"
-                                    value={newNews.content}
-                                    onChange={e => setNewNews({ ...newNews, content: e.target.value })}
-                                    placeholder={t('dashboard.input_content')}
-                                />
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_type')}</label>
-                                    <select
-                                        className="w-full mt-1 h-10 rounded-md border border-secondary-200 bg-white px-3 text-sm"
-                                        value={newNews.type}
-                                        onChange={e => setNewNews({ ...newNews, type: e.target.value })}
-                                    >
-                                        <option value="news">{t('dashboard.news_type')} 📢</option>
-                                        <option value="event">{t('dashboard.event_type')} 📅</option>
-                                    </select>
+                            <form onSubmit={handlePostNews} className="p-4 space-y-4">
+                                <div>
+                                    <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_title')}</label>
+                                    <Input
+                                        value={newNews.title}
+                                        onChange={e => setNewNews({ ...newNews, title: e.target.value })}
+                                        placeholder={t('dashboard.input_title')}
+                                        required
+                                    />
                                 </div>
-                                {newNews.type === 'event' && (
+                                <div>
+                                    <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_content')}</label>
+                                    <textarea
+                                        className="w-full mt-1 rounded-md border border-secondary-200 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                                        rows="3"
+                                        value={newNews.content}
+                                        onChange={e => setNewNews({ ...newNews, content: e.target.value })}
+                                        placeholder={t('dashboard.input_content')}
+                                    />
+                                </div>
+                                <div className="flex gap-4">
                                     <div className="flex-1">
-                                        <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_date')}</label>
-                                        <Input
-                                            type="date"
-                                            value={newNews.event_date}
-                                            onChange={e => setNewNews({ ...newNews, event_date: e.target.value })}
-                                            required
-                                        />
+                                        <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_type')}</label>
+                                        <select
+                                            className="w-full mt-1 h-10 rounded-md border border-secondary-200 bg-white px-3 text-sm"
+                                            value={newNews.type}
+                                            onChange={e => setNewNews({ ...newNews, type: e.target.value })}
+                                        >
+                                            <option value="news">{t('dashboard.news_type')} 📢</option>
+                                            <option value="event">{t('dashboard.event_type')} 📅</option>
+                                        </select>
                                     </div>
-                                )}
-                            </div>
-                            <div className="pt-2 flex justify-end gap-2">
-                                <Button type="button" variant="ghost" onClick={() => setIsNewsModalOpen(false)}>{t('common.cancel')}</Button>
-                                <Button type="submit">{t('dashboard.post_news')}</Button>
-                            </div>
-                        </form>
+                                    {newNews.type === 'event' && (
+                                        <div className="flex-1">
+                                            <label className="text-sm font-medium text-secondary-700">{t('dashboard.input_date')}</label>
+                                            <Input
+                                                type="date"
+                                                value={newNews.event_date}
+                                                onChange={e => setNewNews({ ...newNews, event_date: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="pt-2 flex justify-end gap-2">
+                                    <Button type="button" variant="ghost" onClick={() => setIsNewsModalOpen(false)}>{t('common.cancel')}</Button>
+                                    <Button type="submit">{t('dashboard.post_news')}</Button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-        </Layout>
+                )
+            }
+        </Layout >
     );
 };
 

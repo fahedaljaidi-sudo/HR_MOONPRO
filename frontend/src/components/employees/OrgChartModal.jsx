@@ -10,6 +10,19 @@ const OrgChartModal = ({ isOpen, onClose, employees, onRefresh }) => {
     const [editingNode, setEditingNode] = useState(null);
     const [targetManagerId, setTargetManagerId] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    // Check Admin Role
+    useState(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const role = (payload.role || '').toLowerCase();
+                setIsAdmin(['admin', 'manager', 'owner'].includes(role));
+            } catch (e) { }
+        }
+    }, []);
 
     // Filter employees for dropdown (exclude self)
     const potentialManagers = employees.filter(e => editingNode && e.id !== editingNode.id);
@@ -152,15 +165,17 @@ const OrgChartModal = ({ isOpen, onClose, employees, onRefresh }) => {
                         <p className="text-sm text-gray-500">Visual hierarchy of the company</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setIsEditMode(!isEditMode)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm ${isEditMode
-                                ? 'bg-primary-600 text-white shadow-primary-200 ring-2 ring-primary-100'
-                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                                }`}
-                        >
-                            {isEditMode ? <><Check className="w-4 h-4" /> Save Order</> : <><Edit2 className="w-4 h-4" /> Edit Structure</>}
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={() => setIsEditMode(!isEditMode)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm ${isEditMode
+                                    ? 'bg-primary-600 text-white shadow-primary-200 ring-2 ring-primary-100'
+                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                    }`}
+                            >
+                                {isEditMode ? <><Check className="w-4 h-4" /> Save Order</> : <><Edit2 className="w-4 h-4" /> Edit Structure</>}
+                            </button>
+                        )}
                         <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-700">
                             <X className="w-5 h-5" />
                         </button>
@@ -240,7 +255,7 @@ const OrgChartModal = ({ isOpen, onClose, employees, onRefresh }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

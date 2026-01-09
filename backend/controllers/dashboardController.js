@@ -48,6 +48,15 @@ exports.getDashboardStats = async (req, res) => {
             [tenantId]
         );
 
+        // 6. Nationality Distribution (Chart Data)
+        const [natRows] = await db.execute(`
+            SELECT nationality as name, COUNT(*) as count 
+            FROM employees 
+            WHERE tenant_id = ? AND is_active = TRUE AND nationality IS NOT NULL
+            GROUP BY nationality`,
+            [tenantId]
+        );
+
         // 6. Latest Activities (Mock/Aggregated from tables)
         // Ideally we'd have an 'audit_logs' or 'activities' table. For now, let's pull recent new hires.
         const [recentHires] = await db.execute(
@@ -69,7 +78,8 @@ exports.getDashboardStats = async (req, res) => {
                 attendanceRate
             },
             charts: {
-                departmentDistribution: deptRows
+                departmentDistribution: deptRows,
+                nationalityDistribution: natRows
             },
             activities
         });

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
+import { API_URL } from '../config';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -23,8 +24,7 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const API_URL = 'http://localhost:5000/api/auth/login';
-      const response = await axios.post(API_URL, { email, password });
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
 
       if (response.data.token) {
         // Save token and user info

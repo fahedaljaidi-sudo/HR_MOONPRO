@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Layout from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { nationalities } from '../constants/nationalities';
 import { User, Mail, Phone, MapPin, Briefcase, Calendar, Building2, Shield, ArrowLeft, Trash2, FileText, UploadCloud, Download, Printer, Ban, FileSpreadsheet, Lock } from 'lucide-react';
 
 const EmployeeProfilePage = () => {
@@ -20,19 +21,48 @@ const EmployeeProfilePage = () => {
     const [allJobPositions, setAllJobPositions] = useState([]);
     const [potentialManagers, setPotentialManagers] = useState([]);
     const [currentUserRole, setCurrentUserRole] = useState(null);
+    const [currentUserId, setCurrentUserId] = useState(null); // Added for ownership check
 
-    // Fetch user role
+    // Fetch user role and ID
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 setCurrentUserRole(payload.role || 'Employee');
+                setCurrentUserId(payload.id); // Extract ID
             } catch (e) {
                 console.error("Failed to decode token", e);
             }
         }
     }, []);
+
+    // Helper: Check if can edit
+    const canEdit = () => {
+        const role = (currentUserRole || '').toLowerCase();
+        if (['admin', 'manager', 'owner'].includes(role)) return true; // Admin can edit all
+        if (currentUserId && employee && currentUserId === employee.id) return true; // Self can edit
+        return false;
+    };
+
+    // ... (rest of component code)
+
+    // In the return JSX, find the buttons section:
+    /*
+                    <div className="flex gap-2 relative">
+                        {canEdit() && (
+                            <Button variant="outline" onClick={handleEditClick}>{t('profile.edit_profile')}</Button>
+                        )}
+                        
+                        {['admin', 'manager', 'owner'].includes((currentUserRole || '').toLowerCase()) && (
+                             <Button variant="destructive" onClick={handleDeleteEmployee} className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200">
+                                <Trash2 className="w-4 h-4" />
+                            </Button>
+                        )}
+
+                        <div className="relative">
+    */
+
 
     // Edit State
     const [showEditModal, setShowEditModal] = useState(false);
@@ -409,10 +439,20 @@ const EmployeeProfilePage = () => {
                         </div>
                     </div>
                     <div className="flex gap-2 relative">
-                        <Button variant="outline" onClick={handleEditClick}>{t('profile.edit_profile')}</Button>
-                        <Button variant="destructive" onClick={handleDeleteEmployee} className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200">
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {/* Edit Button - Only Owner or Admin */}
+                        {((currentUserRole || '').toLowerCase() === 'admin' ||
+                            (currentUserRole || '').toLowerCase() === 'manager' ||
+                            (currentUserRole || '').toLowerCase() === 'owner' ||
+                            (currentUserId && employee && currentUserId === employee.id)) && (
+                                <Button variant="outline" onClick={handleEditClick}>{t('profile.edit_profile')}</Button>
+                            )}
+
+                        {/* Delete Button - Only Admin */}
+                        {['admin', 'manager', 'owner'].includes((currentUserRole || '').toLowerCase()) && (
+                            <Button variant="destructive" onClick={handleDeleteEmployee} className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200">
+                                <Trash2 className="w-4 h-4" />
+                            </Button>
+                        )}
 
                         <div className="relative">
                             <Button onClick={() => setShowActionsMenu(!showActionsMenu)}>
@@ -487,7 +527,7 @@ const EmployeeProfilePage = () => {
                                     <InfoItem icon={Calendar} label={t('profile.contact_info.dob')} value={formatDate(employee.dob)} />
                                     <InfoItem icon={User} label={t('profile.contact_info.gender')} value={employee.gender || t('profile.employment.none')} />
                                     <InfoItem icon={Shield} label={t('profile.contact_info.national_id')} value={employee.national_id || t('profile.employment.none')} />
-                                    <InfoItem icon={MapPin} label={t('profile.contact_info.nationality')} value={employee.nationality || t('profile.employment.none')} />
+                                    <InfoItem icon={MapPin} label={t('profile.contact_info.nationality')} value={employee.nationality ? t(`countries.${employee.nationality}`) : t('profile.employment.none')} />
                                     <div className="md:col-span-2">
                                         <InfoItem icon={MapPin} label={t('profile.contact_info.address')} value={employee.address || t('profile.employment.none')} />
                                     </div>
@@ -651,7 +691,7 @@ const EmployeeProfilePage = () => {
                             <PrintItem label={t('profile.contact_info.dob')} value={formatDate(employee.dob)} />
                             <PrintItem label={t('profile.contact_info.gender')} value={employee.gender} />
                             <PrintItem label={t('profile.contact_info.national_id')} value={employee.national_id} />
-                            <PrintItem label={t('profile.contact_info.nationality')} value={employee.nationality} />
+                            <PrintItem label={t('profile.contact_info.nationality')} value={employee.nationality ? t(`countries.${employee.nationality}`) : '-'} />
                             <PrintItem label={t('profile.contact_info.address')} value={employee.address} fullWidth />
                         </div>
                     </div>
@@ -711,37 +751,37 @@ const EmployeeProfilePage = () => {
                                         <div className="col-span-2 mb-2 flex justify-between items-center">
                                             <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                                                 <Shield className="w-4 h-4 text-primary-600" />
-                                                {t('profile.edit_modal.admin_section', 'Administrative Details')}
+                                                {t('profile.edit_modal.admin_section')}
                                             </h3>
                                             {!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase()) && (
                                                 <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100 flex items-center gap-1">
-                                                    <Lock className="w-3 h-3" /> Admin Only
+                                                    <Lock className="w-3 h-3" /> {t('profile.edit_modal.admin_only')}
                                                 </span>
                                             )}
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.employment.job_title') || 'Job Title'}</label>
+                                            <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.employment.job_title')}</label>
                                             <select
                                                 className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                                 value={editForm.jobPositionId}
                                                 onChange={e => setEditForm({ ...editForm, jobPositionId: e.target.value })}
                                                 disabled={!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase())}
                                             >
-                                                <option value="">Select Position</option>
+                                                <option value="">{t('common.select')}</option>
                                                 {allJobPositions.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                                             </select>
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.employment.manager') || 'Direct Manager'}</label>
+                                            <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.employment.manager')}</label>
                                             <select
                                                 className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                                 value={editForm.managerId}
                                                 onChange={e => setEditForm({ ...editForm, managerId: e.target.value })}
                                                 disabled={!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase())}
                                             >
-                                                <option value="">No Manager (Top Level)</option>
+                                                <option value="">{t('organization.no_parent')}</option>
                                                 {potentialManagers.map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
                                             </select>
                                         </div>
@@ -817,12 +857,20 @@ const EmployeeProfilePage = () => {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.contact_info.nationality')}</label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-                                            value={editForm.nationality}
+                                        <select
+                                            className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                            value={editForm.nationality || ''}
                                             onChange={e => setEditForm({ ...editForm, nationality: e.target.value })}
-                                        />
+                                            disabled={!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase())}
+                                        >
+                                            <option value="">{t('common.select')}</option>
+                                            {nationalities.map(n => (
+                                                <option key={n} value={n}>{t(`countries.${n}`)}</option>
+                                            ))}
+                                        </select>
+                                        {!['manager', 'admin', 'owner'].includes((currentUserRole || '').toLowerCase()) && (
+                                            <p className="text-xs text-secondary-400 mt-1">{t('profile.edit_modal.cant_change_nationality')}</p>
+                                        )}
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.contact_info.address')}</label>
@@ -859,7 +907,7 @@ const EmployeeProfilePage = () => {
                         </div>
                         <form onSubmit={handleDocumentSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.type') || 'Document Type'}</label>
+                                <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.type')}</label>
                                 <select
                                     className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     value={uploadForm.type}
@@ -872,7 +920,7 @@ const EmployeeProfilePage = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.number') || 'Document Number'}</label>
+                                <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.number')}</label>
                                 <input
                                     type="text"
                                     className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
@@ -883,7 +931,7 @@ const EmployeeProfilePage = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.start_date') || 'Start Date'}</label>
+                                    <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.start_date')}</label>
                                     <input
                                         type="date"
                                         className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
@@ -892,7 +940,7 @@ const EmployeeProfilePage = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.end_date') || 'Expiry Date'}</label>
+                                    <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.end_date')}</label>
                                     <input
                                         type="date"
                                         className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
@@ -902,7 +950,7 @@ const EmployeeProfilePage = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.file') || 'File'}</label>
+                                <label className="block text-sm font-medium text-secondary-700 mb-1">{t('profile.documents.file')}</label>
                                 <input
                                     type="file"
                                     required
@@ -914,7 +962,7 @@ const EmployeeProfilePage = () => {
                             <div className="flex justify-end pt-4 gap-3">
                                 <Button type="button" variant="ghost" onClick={() => setShowUploadModal(false)}>{t('profile.edit_modal.cancel')}</Button>
                                 <Button type="submit" disabled={isUploading}>
-                                    {isUploading ? t('profile.documents.uploading') : t('profile.documents.upload_confirm') || 'Upload'}
+                                    {isUploading ? t('profile.documents.uploading') : t('profile.documents.upload_confirm')}
                                 </Button>
                             </div>
                         </form>

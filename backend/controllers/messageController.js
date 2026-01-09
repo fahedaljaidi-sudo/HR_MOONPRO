@@ -12,11 +12,13 @@ exports.getConversations = async (req, res) => {
             SELECT c.id, c.type, c.name, 
                    MAX(m.created_at) as last_message_time,
                    (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_content,
+                   (SELECT sender_id FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_sender_id,
                    (SELECT is_deleted FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_is_deleted
             FROM conversations c
             JOIN conversation_participants cp ON c.id = cp.conversation_id
             LEFT JOIN messages m ON c.id = m.conversation_id
             WHERE c.tenant_id = ? AND cp.employee_id = ?
+            AND cp.deleted_at IS NULL
             AND (
                 (? = TRUE AND cp.archived_at IS NOT NULL) OR
                 (? = FALSE AND cp.archived_at IS NULL)
@@ -38,7 +40,10 @@ exports.getConversations = async (req, res) => {
 
                 if (participants.length > 0) {
                     conv.other_user = participants[0];
-                    conv.name = `${participants[0].first_name} ${participants[0].last_name}`; // Override name
+                    // Only override name if it's null (meaning it's a generic chat no subject)
+                    if (!conv.name) {
+                        conv.name = `${participants[0].first_name} ${participants[0].last_name}`;
+                    }
                 }
             }
             if (conv.last_message_is_deleted) {
@@ -60,18 +65,24 @@ exports.startConversation = async (req, res) => {
     try {
         const tenantId = req.user.tenant_id;
         const senderId = req.user.id;
-        const { recipientId } = req.body;
+        const { recipientId, subject } = req.body;
 
         if (!recipientId) return res.status(400).json({ message: 'Recipient is required' });
 
-        const checkQuery = `
-            SELECT c.id FROM conversations c
-            JOIN conversation_participants cp1 ON c.id = cp1.conversation_id
-            JOIN conversation_participants cp2 ON c.id = cp2.conversation_id
-            WHERE c.type = 'direct' AND c.tenant_id = ?
-            AND cp1.employee_id = ? AND cp2.employee_id = ?
-        `;
-        const [existing] = await connection.execute(checkQuery, [tenantId, senderId, recipientId]);
+        // If subject is provided, we treat it as a NEW thread (like an email subject)
+        // If NO subject, we try to reuse existing generic chat
+        let existing = [];
+
+        if (!subject) {
+            const checkQuery = `
+                SELECT c.id FROM conversations c
+                JOIN conversation_participants cp1 ON c.id = cp1.conversation_id
+                JOIN conversation_participants cp2 ON c.id = cp2.conversation_id
+                WHERE c.type = 'direct' AND c.tenant_id = ? AND c.name IS NULL
+                AND cp1.employee_id = ? AND cp2.employee_id = ?
+            `;
+            [existing] = await connection.execute(checkQuery, [tenantId, senderId, recipientId]);
+        }
 
         if (existing.length > 0) {
             // Unarchive if existing
@@ -85,8 +96,8 @@ exports.startConversation = async (req, res) => {
         await connection.beginTransaction();
 
         const [convResult] = await connection.execute(
-            'INSERT INTO conversations (tenant_id, type) VALUES (?, ?)',
-            [tenantId, 'direct']
+            'INSERT INTO conversations (tenant_id, type, name) VALUES (?, ?, ?)',
+            [tenantId, 'direct', subject || null]
         );
         const conversationId = convResult.insertId;
 
@@ -208,5 +219,23 @@ exports.archiveConversation = async (req, res) => {
     } catch (error) {
         console.error('archiveConversation Error:', error);
         res.status(500).json({ message: 'Failed to update archive status' });
+    }
+};
+
+exports.deleteConversation = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const conversationId = req.params.conversationId;
+
+        // Soft delete for this user
+        await db.execute(
+            'UPDATE conversation_participants SET deleted_at = NOW() WHERE conversation_id = ? AND employee_id = ?',
+            [conversationId, userId]
+        );
+
+        res.json({ message: 'Conversation deleted' });
+    } catch (error) {
+        console.error('deleteConversation Error:', error);
+        res.status(500).json({ message: 'Failed to delete conversation' });
     }
 };

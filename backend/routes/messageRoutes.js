@@ -11,6 +11,7 @@ router.post('/conversations', messageController.startConversation);
 router.put('/conversations/:conversationId/archive', messageController.archiveConversation); // Archive
 router.get('/:conversationId', messageController.getMessages);
 router.post('/:conversationId', upload.single('file'), messageController.sendMessage); // File upload
-router.delete('/:messageId', messageController.deleteMessage); // Delete
+router.delete('/:messageId', messageController.deleteMessage); // Delete Message
+router.delete('/conversations/:conversationId', messageController.deleteConversation); // Delete Conversation
 
 module.exports = router;

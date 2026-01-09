@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { LogOut, User as UserIcon, Bell, Search, Globe, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { API_URL } from '../../config';
 
 const Header = () => {
     const { t, i18n } = useTranslation();
@@ -32,8 +33,8 @@ const Header = () => {
 
                 // Fetch both News and Expiring Documents in parallel
                 const [newsRes, alertsRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/news', { headers }).catch(() => ({ data: [] })),
-                    axios.get('http://localhost:5000/api/documents/expiring', { headers }).catch(() => ({ data: [] }))
+                    axios.get(`${API_URL}/news`, { headers }).catch(() => ({ data: [] })),
+                    axios.get(`${API_URL}/documents/expiring`, { headers }).catch(() => ({ data: [] }))
                 ]);
 
                 // Format News
