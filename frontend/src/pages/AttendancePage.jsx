@@ -4,6 +4,7 @@ import Layout from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Clock, CheckCircle, LogIn, LogOut, AlertCircle, History } from 'lucide-react';
+import AttendanceTimer from '../components/attendance/AttendanceTimer';
 import { useTranslation } from 'react-i18next';
 
 const AttendancePage = () => {
@@ -120,16 +121,15 @@ const AttendancePage = () => {
                         )}
 
                         {status === 'in' && (
-                            <>
-                                <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-4 text-green-600 animate-pulse">
-                                    <CheckCircle className="w-10 h-10" />
+                            <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
+                                <AttendanceTimer checkInTime={record?.check_in} />
+
+                                <div className="mt-6">
+                                    <Button size="lg" variant="destructive" className="w-64 h-14 text-lg shadow-lg hover:shadow-xl transition-all" onClick={handleCheckOut} disabled={loadingAction}>
+                                        <LogOut className="w-5 h-5 rtl:ml-2 ltr:mr-2" /> {loadingAction ? t('attendance.checking_out') : t('attendance.check_out')}
+                                    </Button>
                                 </div>
-                                <h2 className="text-2xl font-bold text-secondary-900 mb-2">{t('attendance.checked_in')}</h2>
-                                <p className="text-secondary-500 mb-6">{t('attendance.since')} {formatTime(record?.check_in)}</p>
-                                <Button size="lg" variant="destructive" className="w-48 h-12 text-lg" onClick={handleCheckOut} disabled={loadingAction}>
-                                    <LogOut className="w-5 h-5 rtl:ml-2 ltr:mr-2" /> {loadingAction ? t('attendance.checking_out') : t('attendance.check_out')}
-                                </Button>
-                            </>
+                            </div>
                         )}
 
                         {status === 'completed' && (

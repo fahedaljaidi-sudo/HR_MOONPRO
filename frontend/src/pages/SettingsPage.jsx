@@ -62,9 +62,23 @@ const SettingsPage = () => {
         document.dir = lang === 'ar' ? 'rtl' : 'ltr';
     };
 
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const role = (payload.role || '').toLowerCase();
+                setIsAdmin(['admin', 'manager', 'owner'].includes(role));
+            } catch (e) { }
+        }
+    }, []);
+
     const tabs = [
         { id: 'general', label: t('settings.tabs.general'), icon: Globe },
-        { id: 'attendance', label: t('settings.attendance.title'), icon: Clock },
+        // Only show Attendance Settings for Admins
+        ...(isAdmin ? [{ id: 'attendance', label: t('settings.attendance.title'), icon: Clock }] : []),
         { id: 'notifications', label: t('settings.tabs.notifications'), icon: Bell },
         { id: 'security', label: t('settings.tabs.security'), icon: Lock },
     ];

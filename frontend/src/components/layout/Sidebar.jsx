@@ -83,18 +83,6 @@ const Sidebar = () => {
                 </div>
             </nav>
 
-            {/* Tenant Badge */}
-            <div className="p-4 border-t border-secondary-100 bg-secondary-50/50">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xs">
-                        TM
-                    </div>
-                    <div>
-                        <p className="text-sm font-semibold text-secondary-900">{t('sidebar.company_name') || 'Tech Masters'}</p>
-                        <p className="text-xs text-secondary-500">{t('sidebar.free_plan')}</p>
-                    </div>
-                </div>
-            </div>
         </aside>
     );
 };
