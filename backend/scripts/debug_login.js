@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const email = 'fahad@view.sa'; // From screenshot
+const email = 'mohamed@view.sa'; // From screenshot
 const password = 'password123'; // Guessing default or whatever
 
 async function testLogin() {

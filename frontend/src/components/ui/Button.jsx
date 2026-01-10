@@ -2,9 +2,9 @@ import { cn } from "../../lib/utils";
 
 const Button = ({ className, variant = "default", size = "md", ...props }) => {
     const variants = {
-        default: "bg-primary-600 text-white hover:bg-primary-700 shadow-sm",
-        outline: "border border-secondary-200 bg-transparent hover:bg-secondary-50 text-secondary-900",
-        ghost: "bg-transparent hover:bg-secondary-100 text-secondary-600",
+        default: "bg-primary-600 text-white hover:bg-primary-700 shadow-sm dark:bg-primary-600 dark:hover:bg-primary-700",
+        outline: "border border-secondary-200 bg-transparent hover:bg-secondary-50 text-secondary-900 dark:border-secondary-700 dark:text-white dark:hover:bg-secondary-800",
+        ghost: "bg-transparent hover:bg-secondary-100 text-secondary-600 dark:text-secondary-400 dark:hover:bg-secondary-800 dark:hover:text-secondary-100",
     };
 
     const sizes = {

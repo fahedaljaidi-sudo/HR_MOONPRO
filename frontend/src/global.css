@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased transition-colors duration-300;
+    background-color: #f8fafc;
+    /* secondary-50 */
+    color: #0f172a;
+    /* secondary-900 */
+  }
+
+  html.dark body {
+    background-color: #020617;
+    /* secondary-950 */
+    color: #f1f5f9;
+    /* secondary-100 */
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-tight text-secondary-900 dark:text-white;
+  }
+
+  /* AGGRESSIVE TEXT OVERRIDES FOR DARK MODE */
+  html.dark h1,
+  html.dark h2,
+  html.dark h3,
+  html.dark h4,
+  html.dark h5,
+  html.dark h6 {
+    color: #ffffff !important;
+  }
+
+  html.dark .text-secondary-900 {
+    color: #f1f5f9 !important;
+    /* Force nearly white text on dark backgrounds */
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply backdrop-blur-lg shadow-glass;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  html.dark .glass-panel {
+    background-color: rgba(15, 23, 42, 0.7);
+    /* secondary-900 */
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md shadow-sm hover:shadow-premium transition-all duration-300;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e2e8f0;
+    /* secondary-200 */
+    color: #0f172a;
+    /* secondary-900 */
+  }
+
+  html.dark .glass-card {
+    background-color: rgba(30, 41, 59, 0.8);
+    /* secondary-800 */
+    border-color: #334155;
+    /* secondary-700 */
+    color: white;
+  }
+
+  .app-sidebar {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-right: 1px solid #e2e8f0;
+    @apply backdrop-blur-xl transition-colors duration-300;
+  }
+
+  html.dark .app-sidebar {
+    background-color: rgba(15, 23, 42, 0.9);
+    /* secondary-900 */
+    border-color: #1e293b;
+    /* secondary-800 */
+  }
+
+  .app-header {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid #e2e8f0;
+    @apply backdrop-blur-md transition-colors duration-300;
+  }
+
+  html.dark .app-header {
+    background-color: rgba(15, 23, 42, 0.8);
+    /* secondary-900 */
+    border-color: #1e293b;
+    /* secondary-800 */
+  }
+
+  /* Force text colors for readability */
+  .text-default {
+    color: #0f172a;
+  }
+
+  .text-muted {
+    color: #64748b;
+  }
+
+  html.dark .text-default {
+    color: #f8fafc;
+  }
+
+  html.dark .text-muted {
+    color: #94a3b8;
+  }
+}
+
+@media print {
+
+  /* Hide Sidebar and Header */
+  aside,
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset Layout Margins */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .ml-64,
+  .rtl\:mr-64 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Hide Action Buttons */
+  button {
+    display: none !important;
+  }
+
+  /* Allow tabs content to be visible */
+  .grid {
+    display: block !important;
+  }
+
+  /* Specific adjustment for Profile Cards to look good on paper */
+  .card,
+  .glass-card,
+  .bg-white {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    margin-bottom: 20px;
+    break-inside: avoid;
+  }
+
+  /* Hide scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}

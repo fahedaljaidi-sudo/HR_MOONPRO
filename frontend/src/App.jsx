@@ -1,5 +1,6 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import OrganizationPage from './pages/OrganizationPage';
@@ -12,6 +13,7 @@ import MessagesPage from './pages/MessagesPage';
 import SettingsPage from './pages/SettingsPage';
 import DashboardPage from './pages/DashboardPage';
 import RequestsPage from './pages/RequestsPage';
+import ThemeDebugger from './components/ThemeDebugger';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -24,63 +26,66 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <ThemeDebugger />
+        <Routes>
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
-        <Route path="/" element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/organization" element={
-          <ProtectedRoute>
-            <OrganizationPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/requests" element={
-          <ProtectedRoute>
-            <RequestsPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/employees" element={
-          <ProtectedRoute>
-            <EmployeesPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/employees/:id" element={
-          <ProtectedRoute>
-            <EmployeeProfilePage />
-          </ProtectedRoute>
-        } />
-        <Route path="/attendance" element={
-          <ProtectedRoute>
-            <AttendancePage />
-          </ProtectedRoute>
-        } />
-        <Route path="/roles" element={
-          <ProtectedRoute>
-            <RolesPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/salaries" element={
-          <ProtectedRoute>
-            <SalariesPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/messages" element={
-          <ProtectedRoute>
-            <MessagesPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/settings" element={
-          <ProtectedRoute>
-            <SettingsPage />
-          </ProtectedRoute>
-        } />
-      </Routes>
-    </BrowserRouter>
+          <Route path="/" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/organization" element={
+            <ProtectedRoute>
+              <OrganizationPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/requests" element={
+            <ProtectedRoute>
+              <RequestsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/employees" element={
+            <ProtectedRoute>
+              <EmployeesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/employees/:id" element={
+            <ProtectedRoute>
+              <EmployeeProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/attendance" element={
+            <ProtectedRoute>
+              <AttendancePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/roles" element={
+            <ProtectedRoute>
+              <RolesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/salaries" element={
+            <ProtectedRoute>
+              <SalariesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/messages" element={
+            <ProtectedRoute>
+              <MessagesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

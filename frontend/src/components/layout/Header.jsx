@@ -1,14 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { LogOut, User as UserIcon, Bell, Search, Globe, AlertTriangle } from 'lucide-react';
+import { LogOut, User as UserIcon, Bell, Search, Globe, AlertTriangle, Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../context/ThemeContext';
 import { API_URL } from '../../config';
 
 const Header = () => {
     const { t, i18n } = useTranslation();
+    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    // Debug Wrapper
+    const handleThemeToggle = () => {
+        const oldTheme = theme;
+        // Call the actual toggle
+        toggleTheme();
+
+        // Use timeout to check AFTER react updates (simulated)
+        setTimeout(() => {
+            const isDarkClass = document.documentElement.classList.contains('dark');
+            const stored = localStorage.getItem('theme');
+            // alert(`Debug: switching from ${oldTheme}. \nNew Storage: ${stored}\nHTML Class 'dark' present?: ${isDarkClass}`);
+        }, 100);
+    };
 
     // Notification States
     const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -78,18 +94,27 @@ const Header = () => {
     };
 
     return (
-        <header className="h-16 px-6 bg-white/80 backdrop-blur-md border-b border-secondary-200 flex items-center justify-between fixed top-0 right-0 left-64 z-30 rtl:left-0 rtl:right-64 transition-all duration-300">
+        <header className="app-header h-16 px-6 flex items-center justify-between fixed top-0 right-0 left-64 z-30 rtl:left-0 rtl:right-64">
             {/* Search Bar */}
-            <div className="flex items-center gap-3 bg-secondary-50 px-3 py-2 rounded-lg w-96 border border-secondary-100 focus-within:ring-2 focus-within:ring-primary-100 transition-all">
+            <div className="flex items-center gap-3 bg-secondary-50 dark:bg-secondary-800 px-3 py-2 rounded-lg w-96 border border-secondary-100 dark:border-secondary-700 focus-within:ring-2 focus-within:ring-primary-100 transition-all">
                 <Search className="w-5 h-5 text-secondary-400" />
                 <input
                     type="text"
                     placeholder={t('header.search_placeholder', 'Search...')}
-                    className="bg-transparent border-none outline-none text-sm text-secondary-700 w-full placeholder:text-secondary-400"
+                    className="bg-transparent border-none outline-none text-sm text-secondary-700 dark:text-secondary-200 w-full placeholder:text-secondary-400"
                 />
             </div>
 
             <div className="flex items-center gap-4">
+                {/* Theme Toggle */}
+                <button
+                    onClick={handleThemeToggle}
+                    className="p-2 text-secondary-500 hover:text-primary-600 transition-colors"
+                    title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                >
+                    {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
                 {/* Language Switcher */}
                 <button
                     onClick={toggleLanguage}
@@ -113,8 +138,8 @@ const Header = () => {
 
                     {/* Dropdown */}
                     {isNotifOpen && (
-                        <div className="absolute right-0 rtl:left-0 rtl:right-auto top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-secondary-100 py-2 animate-in fade-in zoom-in duration-200">
-                            <div className="px-4 py-2 border-b border-secondary-100 flex justify-between items-center">
+                        <div className="absolute right-0 rtl:left-0 rtl:right-auto top-full mt-2 w-80 bg-white dark:bg-secondary-900 rounded-xl shadow-lg border border-secondary-100 dark:border-secondary-800 py-2 animate-in fade-in zoom-in duration-200">
+                            <div className="px-4 py-2 border-b border-secondary-100 dark:border-secondary-800 flex justify-between items-center">
                                 <h3 className="font-semibold text-secondary-900">{t('header.notifications', 'Notifications')}</h3>
                                 <span className="text-xs text-primary-600 cursor-pointer hover:underline">{t('header.mark_all_read', 'Mark all read')}</span>
                             </div>
@@ -150,10 +175,10 @@ const Header = () => {
                 {/* User Menu */}
                 <div className="flex items-center gap-3 pl-4 border-l border-secondary-200 rtl:pl-0 rtl:pr-4 rtl:border-l-0 rtl:border-r">
                     <div className="text-right hidden sm:block rtl:text-left">
-                        <p className="text-sm font-medium text-secondary-900">
+                        <p className="text-sm font-medium text-secondary-900 dark:text-white">
                             {user.firstName} {user.lastName}
                         </p>
-                        <p className="text-xs text-secondary-500">Administrator</p>
+                        <p className="text-xs text-secondary-500 dark:text-secondary-400">Administrator</p>
                     </div>
 
                     <div className="relative group">
@@ -161,7 +186,7 @@ const Header = () => {
                             <UserIcon className="w-5 h-5" />
                         </button>
 
-                        <div className="absolute right-0 rtl:left-0 rtl:right-auto top-full mt-2 w-48 bg-white rounded-lg shadow-premium border border-secondary-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right">
+                        <div className="absolute right-0 rtl:left-0 rtl:right-auto top-full mt-2 w-48 bg-white dark:bg-secondary-900 rounded-lg shadow-premium border border-secondary-100 dark:border-secondary-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right">
                             <div className="p-1">
                                 <button
                                     onClick={handleLogout}

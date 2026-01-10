@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
 const Layout = ({ children }) => {
     const navigate = useNavigate();
+    const { theme } = useTheme();
 
     useEffect(() => {
         // Global Error Handler for 401/403
@@ -28,7 +30,7 @@ const Layout = ({ children }) => {
     }, [navigate]);
 
     return (
-        <div className="min-h-screen bg-secondary-50 flex font-sans" dir={document.documentElement.dir}>
+        <div className="min-h-screen flex font-sans transition-colors duration-300" dir={document.documentElement.dir}>
             <Sidebar />
             <div className="flex-1 flex flex-col ml-64 rtl:ml-0 rtl:mr-64 transition-all duration-300">
                 <Header />

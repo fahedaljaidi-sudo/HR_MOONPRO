@@ -152,7 +152,7 @@ const DashboardPage = () => {
             case 'chart_dist':
                 return (
                     <Card key={id} className="min-h-[350px] overflow-hidden flex flex-col">
-                        <h3 className="text-lg font-semibold text-secondary-900 mb-6">{t('dashboard.distribution')}</h3>
+                        <h3 className="text-lg font-semibold text-secondary-900 dark:text-white mb-6">{t('dashboard.distribution')}</h3>
                         <div className="w-full h-[250px]">
                             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <PieChart>
@@ -272,7 +272,7 @@ const DashboardPage = () => {
         <Layout>
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-secondary-900">{t('dashboard.title')}</h1>
+                    <h1 className="text-2xl font-bold text-secondary-900 dark:text-white">{t('dashboard.title')}</h1>
                     <p className="text-secondary-500">{t('dashboard.welcome')}</p>
                 </div>
                 <div className="flex gap-2">
@@ -392,10 +392,10 @@ const DashboardPage = () => {
 };
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
-    <div className="bg-white p-6 rounded-xl border border-secondary-100 shadow-sm flex items-start justify-between hover:shadow-md transition-shadow">
+    <div className="glass-card p-6 rounded-xl border border-secondary-200 shadow-sm flex items-start justify-between hover:shadow-md transition-shadow">
         <div>
-            <p className="text-secondary-500 text-sm font-medium mb-1">{title}</p>
-            <h3 className="text-2xl font-bold text-secondary-900">{value}</h3>
+            <p className="text-secondary-500 text-sm font-medium mb-1 dark:text-secondary-400">{title}</p>
+            <h3 className="text-2xl font-bold text-secondary-900 dark:text-white">{value}</h3>
         </div>
         <div className={`p-3 rounded-lg ${color}`}>
             <Icon className="w-5 h-5" />
